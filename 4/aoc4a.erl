@@ -1,5 +1,5 @@
 -module(aoc4a).
--export([do/1]).
+-export([do/1, diagonalise_left/1, diagonalise_right/1]).
 %-compile(export_all).
 
 count_occurrences_in_string(Subject) ->
