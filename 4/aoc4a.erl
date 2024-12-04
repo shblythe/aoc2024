@@ -3,25 +3,11 @@
 %-compile(export_all).
 
 count_occurrences_in_string(Subject) ->
-    XmasResult = re:run(Subject, "(XMAS)", [global, {capture,[1]}]),
-    Xmas = case XmasResult of
-        {match, XmasMatches} -> length(XmasMatches);
-        _ -> 0
-    end,
-    SamxResult = re:run(Subject, "(SAMX)", [global, {capture,[1]}]),
-    Samx = case SamxResult of
-        {match, SamxMatches} -> length(SamxMatches);
-        _ -> 0
-    end,
-    Xmas + Samx.
+    helpers:count_occurrences_in_string(Subject, "XMAS")
+    + helpers:count_occurrences_in_string(Subject, "SAMX").
 
 count_occurrences_in_string_list(List) ->
     lists:foldl(fun (Subject, Sum) -> Sum + count_occurrences_in_string(Subject) end, 0, List).
-
-% From https://stackoverflow.com/questions/5389254/transposing-a-2-dimensional-matrix-in-erlang
-% should work out how this works!
-transpose([[]|_]) -> [];
-transpose(M) -> [lists:map(fun hd/1, M) | transpose(lists:map(fun tl/1, M))].
 
 % Diagonalise the list to the right, by which I mean make
 % abc          ..abc
@@ -31,8 +17,8 @@ transpose(M) -> [lists:map(fun hd/1, M) | transpose(lists:map(fun tl/1, M))].
 % All I need to do is for each element add the number of dots corresponding to
 % the length of the remaining elements
 % 46 is ascii char for . - might be a better way
-diagonalise_right([X]) -> [X];
-diagonalise_right([X | Rest]) -> [lists:duplicate(length(Rest) ,46) ++ X] ++ diagonalise_right(Rest).
+diagonalise_right_raw([X]) -> [X];
+diagonalise_right_raw([X | Rest]) -> [lists:duplicate(length(Rest) ,46) ++ X] ++ diagonalise_right(Rest).
 
 % Before we can transpose a diagonalised list, we have to ensure all the rows are the same length
 % so fill to end
@@ -44,15 +30,19 @@ fill_to_end([], _) -> [];
 fill_to_end([X | Rest], Length) -> [X ++ lists:duplicate(Length - length(X), 46)] ++ fill_to_end(Rest, Length).
 fill_to_end(List) -> fill_to_end(List, length(hd(List))).
 
+diagonalise_right(Table) -> fill_to_end(diagonalise_right_raw(Table)).
+
+diagonalise_left(Table) -> lists:reverse(fill_to_end(diagonalise_right_raw(lists:reverse(Table)))).
+
 do(File) ->
     code:add_path(".."),
     Contents = helpers:read_file_of_string(File),
     Table = helpers:split_lines(Contents),
     Horizontal = count_occurrences_in_string_list(Table),
-    VerticalTable = transpose(Table),
+    VerticalTable = helpers:transpose(Table),
     Vertical = count_occurrences_in_string_list(VerticalTable),
-    DiagRightTable = transpose(fill_to_end(diagonalise_right(Table))),
+    DiagRightTable = helpers:transpose(diagonalise_right(Table)),
     DiagRight = count_occurrences_in_string_list(DiagRightTable),
-    DiagLeftTable = transpose(fill_to_end(diagonalise_right(lists:reverse(Table)))),
+    DiagLeftTable = helpers:transpose(diagonalise_left(Table)),
     DiagLeft = count_occurrences_in_string_list(DiagLeftTable),
     Horizontal+Vertical+DiagRight+DiagLeft.
