@@ -1,6 +1,7 @@
 -module(helpers).
 -export([
     count_occurrences_in_string/2,
+    print_string_list/1,
     read_file_of_ints/1,
     read_file_of_int_rows/1,
     read_file_of_string/1,
@@ -15,6 +16,11 @@ count_occurrences_in_string(Subject, Term) ->
         {match, Matches} -> length(Matches);
         _ -> 0
     end.
+
+print_string_list([X | Rest]) ->
+    io:format("~s~n", [X]),
+    print_string_list(Rest);
+print_string_list([]) -> ok.
 
 split_tokens(String) -> string:tokens(String, " \n\t").
 
