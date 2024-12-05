@@ -7,6 +7,7 @@
     read_file_of_string/1,
     split_2_columns/1,
     split_lines/1,
+    string_content_to_int_rows/1,
     string_list_to_ints/1,
     transpose/1]).
 
@@ -22,7 +23,7 @@ print_string_list([X | Rest]) ->
     print_string_list(Rest);
 print_string_list([]) -> ok.
 
-split_tokens(String) -> string:tokens(String, " \n\t").
+split_tokens(String) -> string:tokens(String, " \n\t,|").
 
 split_lines(String) -> string:tokens(String, "\n").
 
@@ -41,6 +42,10 @@ split_2_columns(List) -> split_2_columns(List, [], []).
 read_file_of_ints(File) ->
     {ok, Contents} = file:read_file(File),
     string_list_to_ints(split_tokens(binary_to_list(Contents))).
+
+string_content_to_int_rows(Contents) ->
+    Rows = split_lines(binary_to_list(Contents)),
+    lists:map(fun(X) -> string_list_to_ints(split_tokens(X)) end, Rows).
 
 read_file_of_int_rows(File) ->
     {ok, Contents} = file:read_file(File),
