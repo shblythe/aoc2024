@@ -2,31 +2,12 @@
 -export([do/1]).
 % -compile(export_all).
 
-% Find occurrence of each of the list of Terms in Subject, and return a list of
-% the positions in the string that any term was found
-find_occurrences_in_string(Subject, Terms, PosOffset) ->
-    lists:foldl(
-        fun (Term, Sum) ->
-            Result = re:run(Subject, "(" ++ Term ++ ")", [global, {capture,[1]}]),
-            Sum ++ case Result of
-                {match, Matches} -> lists:map(fun ([{Pos,_}]) -> Pos+PosOffset end, Matches);
-                _ -> []
-            end
-        end,
-        [],
-        Terms
-    ).
-
-find_occurrences_in_string_list(List, Terms, PosOffset) ->
-    lists:map(fun (String) -> find_occurrences_in_string(String, Terms, PosOffset) end, List).
-
 find_occurrences_in_string_list(Subject) ->
-    find_occurrences_in_string_list(Subject, ["MAS", "SAM"], 1).
+    helpers:find_occurrences_in_string_list(Subject, ["MAS", "SAM"], 1).
 
 do(File) ->
     code:add_path(".."),
-    Contents = helpers:read_file_of_string(File),
-    Table = helpers:split_lines(Contents),
+    Table = helpers:read_file_of_string_list(File),
     DiagRightTable = helpers:transpose(aoc4a:diagonalise_right(Table)),
     % Get the table of coordinates with MAS or SAM on the right diagonal, converting the coordinates back to original table
     % Basically:
