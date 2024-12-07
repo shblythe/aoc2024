@@ -55,7 +55,7 @@ print_string_list([X | Rest]) ->
     print_string_list(Rest);
 print_string_list([]) -> ok.
 
-split_tokens(String) -> string:tokens(String, " \n\t,|").
+split_tokens(String) -> string:tokens(String, " \n\t,|:").
 
 split_lines(String) -> string:tokens(String, "\n").
 
