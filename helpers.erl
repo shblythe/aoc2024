@@ -4,6 +4,9 @@
     find_coordinates_in_string_list/3,
     find_occurrences_in_string/3,
     find_occurrences_in_string_list/3,
+    get_element_from_string_list/2,
+    outside_map/2,
+    outside_map/3,
     print_string_list/1,
     read_file_of_ints/1,
     read_file_of_int_rows/1,
@@ -12,6 +15,7 @@
     split_2_columns/1,
     split_lines/1,
     string_content_to_int_rows/1,
+    string_list_extents/1,
     string_list_to_ints/1,
     transpose/1]).
 
@@ -49,6 +53,21 @@ find_coordinates_in_string_list(List, Terms, PosOffset) ->
                     Xs
                 ) end, lists:enumerate(0,Occurrences))
         ).
+
+%%% For a given list of strings, and coordinates, returns the character
+%%% at those coordinates
+get_element_from_string_list(List, {X, Y}) ->
+    lists:nth(X+1, lists:nth(Y+1, List)).
+
+outside_bounds(X, Min, Max) ->
+    (X < Min) or (X > Max).
+
+outside_map(Pos, MaxX, MaxY) ->
+    {X, Y} = Pos,
+    outside_bounds(X, 0, MaxX) or outside_bounds(Y, 0, MaxY).
+
+outside_map(Pos, {MaxX, MaxY}) ->
+    outside_map(Pos, MaxX, MaxY).
 
 print_string_list([X | Rest]) ->
     io:format("~s~n", [X]),
@@ -91,6 +110,9 @@ read_file_of_string(File) ->
 read_file_of_string_list(File) ->
     String = read_file_of_string(File),
     split_lines(String).
+
+string_list_extents(Table) ->
+    { length(hd(Table))-1, length(Table) -1 }.
 
 % From https://stackoverflow.com/questions/5389254/transposing-a-2-dimensional-matrix-in-erlang
 % should work out how this works!

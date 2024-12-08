@@ -7,13 +7,6 @@ add_tuple2({A1, B1}, {A2, B2}) ->
 
 turn_90({X,Y}) -> {-Y,X}.
 
-outside_bounds(X, Min, Max) ->
-    (X < Min) or (X > Max).
-
-outside_map(Pos, MaxX, MaxY) ->
-    {X, Y} = Pos,
-    outside_bounds(X, 0, MaxX) or outside_bounds(Y, 0, MaxY).
-
 %%% Take one step on the walk
 %%% Pos is the current position as a tuple {x,y}
 %%% Dir is the direction as a tuple:
@@ -36,21 +29,18 @@ walk(Pos, Dir, MaxX, MaxY, Obstacles, Trail) ->
     case lists:member({NewPos, NewDir}, Trail) of
         true -> {true, [{Pos, Dir}] ++ Trail};
         false ->
-            case outside_map(NewPos, MaxX, MaxY) of
+            case helpers:outside_map(NewPos, MaxX, MaxY) of
                     true -> {false, [{Pos, Dir}] ++ Trail};
                     false -> walk(NewPos, NewDir, MaxX, MaxY, Obstacles, [{Pos, Dir}] ++ Trail)
                  end
     end.
-
-string_list_extents(Table) ->
-    { length(hd(Table))-1, length(Table) -1 }.
 
 do(File) ->
     code:add_path(".."),
     Map = helpers:read_file_of_string_list(File),
     Obstacles = helpers:find_coordinates_in_string_list(Map, ["#"], 0),
     [Guard | _] = helpers:find_coordinates_in_string_list(Map, ["\\^"], 0),
-    {MaxX, MaxY} = string_list_extents(Map),
+    {MaxX, MaxY} = helpers:string_list_extents(Map),
     {_, Trail} = walk(Guard, {0,-1}, MaxX, MaxY, Obstacles, []),
     TrailPositions = lists:uniq(lists:map(fun ({Pos, _}) -> Pos end, Trail)),
     io:format("Part 1: ~w~n",[length(TrailPositions)]),
