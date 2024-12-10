@@ -1,6 +1,6 @@
 -module(aoc9b).
 -export([do/1]).
--compile(export_all).
+% -compile(export_all).
 
 convert_to_disk_layout_space([], _Id, Surface) -> Surface;
 convert_to_disk_layout_space([Length | RestMap], Id, Surface) ->

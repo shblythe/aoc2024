@@ -2,9 +2,6 @@
 -export([do/1]).
 % -compile(export_all).
 
-add_tuple2({A1, B1}, {A2, B2}) ->
-    {A1+A2, B1+B2}.
-
 turn_90({X,Y}) -> {-Y,X}.
 
 %%% Take one step on the walk
@@ -20,12 +17,12 @@ turn_90({X,Y}) -> {-Y,X}.
 %%% Returns {Inf, Trail} where Inf is true if guard is in an infinite loop
 %%% or false if she walked off the map, Trail is the final trail walked
 walk(Pos, Dir, MaxX, MaxY, Obstacles, Trail) ->
-    RawNewPos = add_tuple2(Pos, Dir),
+    RawNewPos = helpers:add_tuple2(Pos, Dir),
     NewDir = case lists:member(RawNewPos, Obstacles) of
             true -> turn_90(Dir);
             false -> Dir
         end,
-    NewPos = add_tuple2(Pos, NewDir),
+    NewPos = helpers:add_tuple2(Pos, NewDir),
     case lists:member({NewPos, NewDir}, Trail) of
         true -> {true, [{Pos, Dir}] ++ Trail};
         false ->

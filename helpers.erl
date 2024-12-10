@@ -1,5 +1,6 @@
 -module(helpers).
 -export([
+    add_tuple2/2,
     count_occurrences_in_string/2,
     find_coordinates_in_string_list/3,
     find_occurrences_in_string/3,
@@ -18,6 +19,9 @@
     string_list_extents/1,
     string_list_to_ints/1,
     transpose/1]).
+
+add_tuple2({A1, B1}, {A2, B2}) ->
+    {A1+A2, B1+B2}.
 
 count_occurrences_in_string(Subject, Term) ->
     Result = re:run(Subject, "(" ++ Term ++ ")", [global, {capture,[1]}]),
