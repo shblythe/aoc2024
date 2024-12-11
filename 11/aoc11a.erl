@@ -1,6 +1,6 @@
 -module(aoc11a).
 -export([do/1]).
--compile(export_all).
+% -compile(export_all).
 
 blink(Stones) ->
     lists:flatten(lists:map(
