@@ -43,8 +43,68 @@ calc_perimeter(Region) ->
                 0,
                 maps:keys(Region)).
 
-calc_fencing_cost({_, RegionCoords}) ->
+add_vertex_hit(Coords, Vertices, Direction) -> maps:update_with(
+    Coords,
+    fun(Hits) -> sets:add_element(Direction, Hits) end,
+    sets:add_element(Direction, sets:new()),
+    Vertices).
+
+%%% The number of vertices is the same as the number of sides.
+%%% If we create a map of the coordinates of the vertices of each plot, and
+%%% how often those are hit, those with an odd numbered count will either be a
+%%% concave (3) or convex (1) vertex.
+%%% For 2 hits, it could be two vertices in the same spot, if their sources are
+%%% diagonally opposite, as in the below example:
+%%% AAAAAA
+%%% AAABBA
+%%% AAABBA
+%%% ABBAAA
+%%% ABBAAA
+%%% AAAAAA
+%%% If it's hit from the same side twice (whether top, bottom, left or right) then
+%%% it should be counted as zero, but if it's hit from top-left and bottom-right, or
+%%% top-right and bottom-left, then it should count as two.
+%%% Use atoms tl, tr, bl, br to indicate direction
+
+%%% We'll use the same coordinate system, a vertex with coordinate {X,Y} is at
+%%% the top left of the plot at {X,Y}.
+calc_region_vertices(RegionCoords) ->
+    %% Create a map of all the plot vertices with count
+    RegionVertices = lists:foldl(
+        fun (Coords, Vertices) ->
+            {X, Y} = Coords,
+            Vertices2 = add_vertex_hit({X, Y}, Vertices, tl),
+            Vertices3 = add_vertex_hit({X+1, Y}, Vertices2, tr),
+            Vertices4 = add_vertex_hit({X, Y+1}, Vertices3, bl),
+            Vertices5 = add_vertex_hit({X+1, Y+1}, Vertices4, br),
+            Vertices5
+        end,
+        #{},
+        maps:keys(RegionCoords)),
+    % io:format("Vertices: ~w~n", [RegionVertices]),
+    maps:fold(
+        fun(_, Hits, Sum) ->
+            Sum + case sets:size(Hits) of
+                1 -> 1;
+                3 -> 1;
+                4 -> 0;
+                2 ->
+                    TrBl = sets:from_list([tr,bl]),
+                    case ((Hits == TrBl) or sets:is_disjoint(Hits, TrBl)) of
+                        true -> 2;
+                        false -> 0
+                    end
+            end
+        end,
+        0,
+        RegionVertices
+    ).
+
+calc_fencing_cost_part1({_, RegionCoords}) ->
     length(maps:keys(RegionCoords)) * calc_perimeter(RegionCoords).
+
+calc_fencing_cost_part2({_, RegionCoords}) ->
+    length(maps:keys(RegionCoords)) * calc_region_vertices(RegionCoords).
 
 do(File) ->
     code:add_path(".."),
@@ -54,9 +114,12 @@ do(File) ->
         lists:map(fun ({X, Y}) -> {{X, Y}, helpers:get_element_from_string_list(Map, {X, Y})} end, Coords )
     ),
     RegionList = create_region_list(GardenMap, []),
-    % io:format("~w~n",[lists:map(fun({Id, RegionCoords}) -> {
+    % io:format("Regions: ~w~n",[lists:map(fun({Id, RegionCoords}) -> {
     %     Id,
     %     length(maps:keys(RegionCoords)),
-    %     calc_perimeter(RegionCoords)
+    %     calc_perimeter(RegionCoords),
+    %     calc_region_vertices(RegionCoords)
     % } end, RegionList)]),
-    lists:foldl(fun (Region, Sum) -> Sum + calc_fencing_cost(Region) end, 0, RegionList).
+    Part1 = lists:foldl(fun (Region, Sum) -> Sum + calc_fencing_cost_part1(Region) end, 0, RegionList),
+    Part2 = lists:foldl(fun (Region, Sum) -> Sum + calc_fencing_cost_part2(Region) end, 0, RegionList),
+    io:format("Part1: ~w~nPart2: ~w~n",[Part1, Part2]).
