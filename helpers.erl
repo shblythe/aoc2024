@@ -5,7 +5,9 @@
     find_coordinates_in_string_list/3,
     find_occurrences_in_string/3,
     find_occurrences_in_string_list/3,
+    gcd/2,
     get_element_from_string_list/2,
+    lcm/2,
     outside_map/2,
     outside_map/3,
     print_string_list/1,
@@ -58,10 +60,15 @@ find_coordinates_in_string_list(List, Terms, PosOffset) ->
                 ) end, lists:enumerate(0,Occurrences))
         ).
 
+gcd(A, 0) -> A;
+gcd(A, B) -> gcd(B, A rem B).
+
 %%% For a given list of strings, and coordinates, returns the character
 %%% at those coordinates
 get_element_from_string_list(List, {X, Y}) ->
     lists:nth(X+1, lists:nth(Y+1, List)).
+
+lcm(A, B) -> (A*B) div gcd(A, B).
 
 outside_bounds(X, Min, Max) ->
     (X < Min) or (X > Max).
@@ -82,10 +89,22 @@ split_tokens(String) -> string:tokens(String, " \n\t,|:").
 
 split_lines(String) -> string:tokens(String, "\n").
 
+%%% Converts a list of strings to a list of ints.
+%%% Where each string contains a string of digits, the first string of
+%%% digits found is converted to an int, otherwise the atom `str` is
+%%% put in that place.
 string_list_to_ints(List) ->
-    lists:map(fun(X) -> {Int, _} = string:to_integer(X),
-                        Int end,
-              List).
+    lists:map(
+        fun(X) ->
+            Match = re:run(X, "\\d+",[{capture, first, list}]),
+            case Match of
+                {match, [Str]} ->
+                    {Int, _} = string:to_integer(Str),
+                    Int;
+                nomatch -> str
+            end
+        end,
+        List).
 
 split_2_columns([], AccL, AccR) -> [AccL, AccR];
 split_2_columns(List, AccL, AccR) ->
