@@ -96,7 +96,7 @@ split_lines(String) -> string:tokens(String, "\n").
 string_list_to_ints(List) ->
     lists:map(
         fun(X) ->
-            Match = re:run(X, "\\d+",[{capture, first, list}]),
+            Match = re:run(X, "-?\\d+",[{capture, first, list}]),
             case Match of
                 {match, [Str]} ->
                     {Int, _} = string:to_integer(Str),
