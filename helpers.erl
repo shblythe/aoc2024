@@ -17,6 +17,7 @@
     read_file_of_string_list/1,
     split_2_columns/1,
     split_lines/1,
+    split_tokens/1,
     string_content_to_int_rows/1,
     string_list_extents/1,
     string_list_to_ints/1,
