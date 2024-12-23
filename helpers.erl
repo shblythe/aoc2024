@@ -10,6 +10,7 @@
     lcm/2,
     outside_map/2,
     outside_map/3,
+    print_set/1,
     print_string_list/1,
     read_file_of_ints/1,
     read_file_of_int_rows/1,
@@ -80,6 +81,12 @@ outside_map(Pos, MaxX, MaxY) ->
 
 outside_map(Pos, {MaxX, MaxY}) ->
     outside_map(Pos, MaxX, MaxY).
+
+print_string(S) -> io:format("~s ",[S]).
+
+print_set(S) ->
+    lists:foreach(fun print_string/1, sets:to_list(S)),
+    io:format("~n").
 
 print_string_list([X | Rest]) ->
     io:format("~s~n", [X]),
