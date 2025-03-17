@@ -1,0 +1,5 @@
+456A:
+<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
+   <   AA  v <   AA >>  ^ A  v  A ^ A  v  A ^ A   < v  AA >  ^ A
+       ^^        <<       A     >   A     >   A        vv      A
+                          4         5         6                A
